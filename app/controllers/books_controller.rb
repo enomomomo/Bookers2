@@ -1,4 +1,7 @@
 class BooksController < ApplicationController
+  before_action :is_matching_login_user, only: [:edit, :update]
+
+
   def new
     @book = Book.new
   end
@@ -10,7 +13,8 @@ class BooksController < ApplicationController
       flash[:notice] = "You have created book successfully."
       redirect_to book_path(@book)
     else
-      render :new
+      flash[:notice] = "Error: You haven't created book successfully."
+      redirect_to '/books'
     end
   end
 
@@ -22,28 +26,29 @@ class BooksController < ApplicationController
     @user = current_user
     @books = @user.books
     @books = Book.all
-    # 投稿フォームの情報
     @book = Book.new
   end
 
   def show
     @book = Book.find(params[:id])
     @user = @book.user
-    # UserinfoとNewbookの部分
-    # @user = User.find(params[:id])
     @books = @user.books
   end
 
   def update
-    book = Book.find(params[:id])
-    book.update(book_params)
-    redirect_to book_path(book.id)
+    @book = Book.find(params[:id])
+    if @book.update(book_params)
+      flash[:notice] = "You have updated book successfully."
+      redirect_to book_path(@book)
+    else
+      render :edit
+    end
   end
 
   def destroy
     book = Book.find(params[:id])
     book.destroy
-    redirect_to '/users'
+    redirect_to user_path(current_user)
   end
 
   # 投稿データのストロングパラメータ
@@ -51,5 +56,12 @@ class BooksController < ApplicationController
 
   def book_params
     params.require(:book).permit(:title, :body)
+  end
+
+  def is_matching_login_user
+    book = Book.find(params[:id])
+    unless book.user == current_user
+      redirect_to books_path
+    end
   end
 end

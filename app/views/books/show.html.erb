@@ -19,10 +19,14 @@
         <p><%= @book.body %></p>
       </td>
       <td>
-        <a class='btn btn-sm btn-success' href='<%= book_path(@book) %>/edit'>Edit</a>
+        <% if @book.user == current_user %>
+          <a class='btn btn-sm btn-success' href='<%= book_path(@book) %>/edit'>Edit</a>
+        <% end %>
       </td>
       <td>
-        <%= link_to 'Destroy', book_path(@book), method: :delete, data: { confirm: '本当に消しますか？' }, class: 'btn btn-sm btn-danger' %>
+        <% if @book.user == current_user %>
+          <%= link_to 'Destroy', book_path(@book), method: :delete, data: { confirm: '本当に消しますか？' }, class: 'btn btn-sm btn-danger' %>
+        <% end %>
       </td>
     </tr>
   </table>
